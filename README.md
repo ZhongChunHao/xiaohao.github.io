@@ -1,9 +1,8 @@
-# HuxBlog Boilerplate
+CharlesZhong Blog
+========
 
-##### This is the boilerplate of [Hux Blog](https://github.com/Huxpro/huxpro.github.io), all documents is over there!
+### [View Live CharlesZhong Blog &rarr;](https://xiaohao.website)
 
-#### [View Boilerplate &rarr;](http://huangxuan.me/huxblog-boilerplate/)
+### forked from [huxpro.github](https://github.com/Huxpro/huxpro.github.io)
 
-#### [View Live Hux Blog &rarr;](http://huangxuan.me)
-
-## If you like Hux Blog, Please star [huxpro.github.io repo](https://github.com/Huxpro/huxpro.github.io) instead of this! Thank you!
+```### [View Live CharlesZhong Blog &rarr;](https://xiaohao.github.io)

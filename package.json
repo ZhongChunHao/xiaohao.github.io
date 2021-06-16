@@ -1,22 +1,25 @@
 {
     "name": "hux-blog",
     "title": "Hux Blog",
-    "version": "1.0.0",
-    "homepage": "http://huxpro.github.io",
-    "author": "Hux",
+    "author": "Hux <huxpro@gmail.com>",
+    "version": "1.8.2",
+    "homepage": "http://xiaohao.github.io",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Charles-zhong/xiaohao.github.io"
+    },
+    "bugs": "https://github.com/Charles-zhong/xiaohao.github.io/issues",
     "devDependencies": {
-        "grunt": "~1.4.1",
-        "grunt-contrib-less": "~2.0.0",
-        "grunt-contrib-watch": "~1.1.0",
+        "grunt": "~0.4.5",
+        "grunt-contrib-less": "~0.11.4",
+        "grunt-contrib-watch": "~0.6.1",
         "grunt-banner": "~0.2.3",
         "grunt-contrib-uglify": "~0.5.1"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Huxpro/huxpro.github.io"
-    },
     "scripts": {
-        "preview": "cd _site; python -m SimpleHTTPServer 8020",
-        "watch": "grunt watch & npm run preview & jekyll serve -w;"
+        "start" : "jekyll serve -w -l --host 0.0.0.0 --port 4000",
+        "dev"   : "grunt watch & npm run start",
+        "boil"  : "git push boilerplate boilerplate:master",
+        "push"  : "git push origin master --tag"
     }
 }
