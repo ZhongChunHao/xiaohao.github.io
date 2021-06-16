@@ -91,7 +91,7 @@ netease_comment: false
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "Think Twice, Code Once<br>三思而后码"
-sidebar-avatar: /img/avatar-zch-my2020.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /zhongxiaohao.github.io/img/avatar-zch-my2020.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
