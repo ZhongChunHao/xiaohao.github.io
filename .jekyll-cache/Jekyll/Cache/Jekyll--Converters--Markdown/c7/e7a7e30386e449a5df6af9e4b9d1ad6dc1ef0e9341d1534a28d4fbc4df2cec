@@ -1,0 +1,609 @@
+I"~A<p>2020-4-12-unity-shader-shaderlab</p>
+<h1 id="unity-shader-二-shaderlab了解">[Unity Shader] 二 ShaderLab了解</h1>
+<h2 id="1环境">1.环境</h2>
+<p>Unity版本 2017.4.1
+Visual Studio 2017
+DX版本
+编辑时间 2020.5</p>
+<h2 id="2了解">2.了解</h2>
+<p>Unity Shader是Unity对原生shader的一层封装，这样研发或者美术就在改动一个效果的时候，就不必去找复杂的底层shader改动，又或者是我只是改动一点地方，但是当前的效果也想保留，可能得再加另一个shader脚本，这时候如果用底层的shader，就得重复写很多代码，所以到unity的时候，为了方便，很多东西都封装好了，直接新建一个Unity Shader的脚本，然后就可以改动少量的代码就可以运行了（前提是写对了）。对于开发人员来说，使用Unity Shader，改动一行代码就能实现效果，有时候是好事，有时候也是坏事，改动一行代码就能快速完成需求当然好，但是不熟悉底层的话，就会“知其然而不知其所以然”，难以理解其中的关键点，所以分了两部分来写，一个是Unity Shader的，另一个就是底层的Shader，一个注重实现和一部分的底层理解，另一个就注重对底层的调用。
+然后对于使用Unity Shader的话，则需要使用ShaderLab来写，以及根据需要调用的渲染底层接口，来配合使用HLSL语言（DX）还是GLSL（OpenGL），或者是CG语言（Nvidia）.</p>
+
+<h2 id="3语义">3.语义</h2>
+<h3 id="31-顶点片元着色器-vertex-shaderfragment-shader">3.1 顶点/片元着色器 Vertex shader/fragment shader</h3>
+<p>先看例子，使用的顶点/片元着色器编写</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+</pre></td><td class="rouge-code"><pre>Shader "Custom/CustomShader"
+{
+  Properties{
+    _Color("color", Color) = (0.5f, 0.5f, 0.5f, 0.5f)
+  }
+  SubShader
+  {
+    Tags{"Queue" = "Transparent"}
+    Pass
+    {
+      CGPROGRAM
+      Name "A"
+
+      #pragma vertex vert
+      #pragma fragment frag
+      #include "UnityCG.cginc"
+
+      struct a2v
+      {
+        position : POSITION;
+      };
+      struct v2f
+      {
+        color : COLOR0;
+      };
+
+      float4 _Color;
+
+      v2f vert(a2v i)
+      {
+        v2f o;
+        return o;
+      }
+      fixed4 frag(v2f o):SV_TARGET
+      {
+        return o.color;
+      }
+      ENDCG
+    }
+  }
+  FallBack "Diffuse"
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="311-属性部分">3.1.1 属性部分</h4>
+<p>Properties</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>属性类型</th>
+      <th>描述</th>
+      <th>使用</th>
+      <th>CG变量类型</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Range(min,max)</td>
+      <td>创建Float属性，以滑动条的形式便于在最大值和最小值之间进行调节</td>
+      <td>_Range(“Range Property”, Range(0,10)) = 0</td>
+      <td>float, half, fixed</td>
+    </tr>
+    <tr>
+      <td>Color</td>
+      <td>创建色块，可以在Inspector面板上通过拾色器获取颜色值=(float,float,float,float)</td>
+      <td>_Color(“Color Property”, Color) = (0,0,0,0)</td>
+      <td>float4, half4, fixed4</td>
+    </tr>
+    <tr>
+      <td>2D</td>
+      <td>创建纹理属性，允许直接拖曳一个纹理</td>
+      <td>_2D(“2D Property”, 2D) = “white” {}</td>
+      <td>sampler2D</td>
+    </tr>
+    <tr>
+      <td>3D</td>
+      <td>3D纹理</td>
+      <td>_3D(“3D Property”, 3D) = “black” {}</td>
+      <td>sampler3D</td>
+    </tr>
+    <tr>
+      <td>Rect(旧)</td>
+      <td><del>创建一个非2次方的纹理属性，作为2DGUI元素</del></td>
+      <td><del>暂无</del></td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Cube</td>
+      <td>在Inspector面板上创建一个立方贴图属性，允许用户直接拖曳立方贴图作为着色器属性，如果用天空盒就用cube立方体贴图</td>
+      <td>_Cube(“Cube Property”, Cube) = “red” {}</td>
+      <td>samplerCube</td>
+    </tr>
+    <tr>
+      <td>Float</td>
+      <td>在Inspector面板上创建一个非滑动条的float属性</td>
+      <td>_Float(“Float Property”, Float) = 12.3</td>
+      <td>float, half, fixed</td>
+    </tr>
+    <tr>
+      <td>Vector</td>
+      <td>创建一个拥有4个float值的属性，可以用于标记方向或颜色</td>
+      <td>_Vector(“Vector Property”, Vector) = (1,2,3,4)</td>
+      <td>float4, half4, fixed4</td>
+    </tr>
+    <tr>
+      <td>Int</td>
+      <td>创建一个Int类型的属性</td>
+      <td>_Int(“Int Property”, Int) = 1</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>对于精度的数值类型,CG/HLSL中3种精度的数值类型</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>type</th>
+      <th>精度</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>float</td>
+      <td>最高精度的浮点值。通常使用32位来存储</td>
+    </tr>
+    <tr>
+      <td>half</td>
+      <td>中等精度的浮点值。通常使用16位来存储，精度范围是-60000 ~ +60000</td>
+    </tr>
+    <tr>
+      <td>fixed</td>
+      <td>最低精度的浮点值。通常使用11位来存储，精度范围是-2.0 ~ +2.0</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="312-subshader">3.1.2 SubShader</h4>
+<p>在SubShader里面会设置渲染状态RenderSetup和设置Tags</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>SubShader
+{
+  //可选
+  [RenderSetup]
+  //可选
+  [Tags]
+  Pass
+  {
+    ...
+  }
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h5 id="321-状态设置">3.2.1 状态设置</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th>RenderSetup</th>
+      <th>说明</th>
+      <th>设置指令</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Cull</td>
+      <td>设置剔除模式；剔除背面/正面/关闭剔除</td>
+      <td>Cull Back/Front/Off</td>
+    </tr>
+    <tr>
+      <td>ZTest</td>
+      <td>设置深度测试时使用的函数</td>
+      <td>ZTest Less Greater/LEqual/GEqual/Equal/NotEqual/Always</td>
+    </tr>
+    <tr>
+      <td>ZWrite</td>
+      <td>开启/关闭深度写入</td>
+      <td>ZWrite On/Off</td>
+    </tr>
+    <tr>
+      <td>Blend</td>
+      <td>开启并设置混合模式</td>
+      <td>Blend SrcFactor DstFactor</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>3.2.1.1 Cull</p>
+
+<p>3.2.1.2 ZTest</p>
+
+<p>3.2.1.3 ZWrite</p>
+
+<p>3.2.1.4 Blend</p>
+
+<h5 id="322-tags">3.2.2 Tags</h5>
+<p>使用键值对去声明的，Tags{“key1” = “value1” “key2” = “value2”}</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>标签类型</th>
+      <th>说明</th>
+      <th>例子</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Queue</td>
+      <td>控制渲染顺序，指定该物体属于哪一个渲染队列，通过这种方式可以保证所有的透明物体可以再所有不透明物体后面被渲染，我们也可以自定义使用的渲染队列来控制物体的渲染顺序</td>
+      <td>Tags{“Queue” = “Transparent”}</td>
+    </tr>
+    <tr>
+      <td>RenderType</td>
+      <td>对着色器进行分类，例如这是一个不透明的着色器，或是这是一个透明的着色器等。这可以被用于着色器替换(Shader Replacement)功能</td>
+      <td>Tags{“RenderType” = “Opaque”}</td>
+    </tr>
+    <tr>
+      <td>DisableBatching</td>
+      <td>一些SubShader在使用Unity的批处理功能时会出现问题，例如使用了模型空间下的坐标来进行顶点动画。这时可以通过该标签来直接指明是否对该SubShader使用批处理</td>
+      <td>Tags{“DisableBatching” = “True”}</td>
+    </tr>
+    <tr>
+      <td>ForceNoShadowCasting</td>
+      <td>控制使用该SubShader的物体是否会投射阴影</td>
+      <td>Tags{“ForceNoShadowCasting” = “True”}</td>
+    </tr>
+    <tr>
+      <td>IgnoreProjector</td>
+      <td>如果该标签值为”True”，那么使用该SubShader的物体将不会受Projector的影响。通常用于半透明物体</td>
+      <td>Tags{“IgnoreProjector” = “True”}</td>
+    </tr>
+    <tr>
+      <td>CanUseSpriteAtlas</td>
+      <td>当该SubShader是用于精灵(sprites)时，将该标签设为”False”</td>
+      <td>Tags{“CanUseSpriteAtlas” = “False”}</td>
+    </tr>
+    <tr>
+      <td>PreviewType</td>
+      <td>指明材质面板将如何预览该材质。默认情况下，材质将显示为一个球形，我们可以通过把该标签的值设为”Plane” “SkyBox”来改变预览类型</td>
+      <td>Tags{“PreviewType” = “Plane”}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>3.2.2.1 Queue 渲染队列
+代表的具体数值，所以可以Tags{“Queue” = “Transparent+1000”}，”+”左右不能加空格</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Queue</th>
+      <th>参数</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Background</td>
+      <td>1000</td>
+    </tr>
+    <tr>
+      <td>Geometry</td>
+      <td>2000</td>
+    </tr>
+    <tr>
+      <td>AlphaTest</td>
+      <td>2450</td>
+    </tr>
+    <tr>
+      <td>Transparent</td>
+      <td>3000</td>
+    </tr>
+    <tr>
+      <td>Overlay</td>
+      <td>4000</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>3.2.2.2 RenderType 渲染类型<br />
+这个标签再替代渲染做Post Effects时很重要，Unity内置的Image Effects就要根据它来决定如何替代渲染</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>RenderType</th>
+      <th>描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Opaque</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Transparent</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>TransparentCutout</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Backgroud</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Overlay</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="323-lod">3.2.3 LOD</h4>
+
+<h4 id="324-pass">3.2.4 Pass</h4>
+<p>SubShader包装了一个渲染方案，而方案由具体的一个个Pass来执行。Pass内置的标签是针对渲染路径的，告诉渲染引擎这个Pass应该在什么样的渲染路径下被渲染。</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>SubShader
+{
+  ...
+  Pass
+  {
+    [Name]
+    [Tags]
+    [RenderSetup]
+    //代码部分
+    [Code]
+  }
+  ...
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>3.3.4.1 Name
+需要结合“UsePass”语义来使用，Unity内对于Name后的命名要大写，如</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>Shader "Custom/A"
+SubShader
+{
+  Pass
+  {
+    Name "APASS"
+  }
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Shader "Custom/B"
+SubShader{
+  UsePass "Custom/A/APASS"
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>3.3.4.2 Pass中的Tags</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tags</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>LightMode</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>RequireOptions</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>3.3.4.2.1 LightMode
+Unity支持3中RendereringPath，分别是VertexLit、Forward和Deferred Lighting，为此又定义了在Pass中使用的LightMode标签Vertex、ForwardBase、ForwardAdd、PrepassBase、PrepassFinal等，分别表示当前Pass是为在哪一个RenderingPath下设计使用的。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>LightMode</th>
+      <th>含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Always</td>
+      <td>无论使用哪种渲染路径，该Pass总是会被渲染，但不会计算任何光照</td>
+    </tr>
+    <tr>
+      <td>ForwardBase</td>
+      <td>用于前向渲染。该Pass会计算环境光、最重要的平行光、逐顶点/SH光源和光照贴图(Lightmaps)</td>
+    </tr>
+    <tr>
+      <td>ForwardAdd</td>
+      <td>用于前向渲染。该Pass会计算额外的逐像素光源，每个Pass对应一个光源</td>
+    </tr>
+    <tr>
+      <td>PrepassBase</td>
+      <td>在旧版延迟渲染(legacy Deferred Lighting)中使用，该Pass将渲染法线和高光反射的指数部分</td>
+    </tr>
+    <tr>
+      <td>PrepassFinal</td>
+      <td>在旧版延迟渲染(legacy Deferred Lighting)中使用，该Pass将通过组合纹理，光照和自发光来渲染得到最后的颜色</td>
+    </tr>
+    <tr>
+      <td>Deferred</td>
+      <td>用于延迟渲染。该Pass会渲染G-缓冲(G-buffer)</td>
+    </tr>
+    <tr>
+      <td>ShadowCaster</td>
+      <td>将物体的深度信息渲染到阴影贴图(shadowmap)或者深度纹理中</td>
+    </tr>
+    <tr>
+      <td>MotionVectors</td>
+      <td>用于计算每个对象的运动矢量</td>
+    </tr>
+    <tr>
+      <td>Vertex</td>
+      <td>当对象没有进行光照映射(lightmap)时，在旧版顶点光照(legacy Vertex Lit Rendering)中使用；所有的顶点光都将被应用到</td>
+    </tr>
+    <tr>
+      <td>VertexLMRGBM</td>
+      <td>当对象被光照时，在旧版顶点光照(legacy Vertex Lit rendering)中使用；在光照映射(lightmap)是RGBM编码(一般是PC和控制台场景中)时使用</td>
+    </tr>
+    <tr>
+      <td>VertexLM</td>
+      <td>当对象被光照时，在旧版顶点光照(legacy Vertex Lit rendering)中使用；在光照映射(lightmap)是双LDR编码(一般是移动平台场景中)时使用</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>3.3.4.3 code部分
+之后就是着重写代码去调整着色器的部分，这里可以用GLHL或者HLSL或者Cg着色语言来写代码(实际上这里的着色语言和原本的语言还是不同，是Unity对原生的着色语言进行的一层封装，一些函数和语法也跟原来的大部分都相同，所以可以按照原生的着色语言标准来写，但实际应该叫做Unity GLSL或者Unity HLSL或者Unity Cg)，比如用Unity Cg语言来写的话就是下面的</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>SubShader
+{
+  Pass
+  {
+    CGPROGRAM
+    //CODE
+    ENDCG
+  }
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>使用Unity HLSL语言来写的话是下面的</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>SubShader
+{
+  Pass
+  {
+    HLSLPROGRAM
+    //CODE
+    ENDHLSL
+  }
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="313-fallback">3.1.3 FallBack</h4>
+<p>在所有的渲染方案SubShader都不适用于这个平台时，就会使用默认的渲染方案。一般开发时不写，这样可以编辑查看自己写的渲染方案是不是对的，在发布时才写。
+选项 FallBack “name” 或者 FallBack Off</p>
+
+<h3 id="32-surface-shader-表面着色器">3.2 Surface Shader 表面着色器</h3>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>Shader "Custom/CustomSurfaceShader"
+{
+  Properties{
+    //
+  }
+  SubShader{
+    Tags{}
+    CGPROGRAM
+    #pragrma surface surf Limbert
+    ENDCG
+  }
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="4-其他语义">4 其他语义</h2>
+<p>CustomEditor扩展Unity编辑器界面
+Category对Shader命令分组</p>
+
+<h1 id="资料">资料</h1>
+<p>书籍</p>
+<ul>
+  <li>《Unity Shader入门精要》</li>
+</ul>
+
+<p>链接</p>
+<ul>
+  <li><a href="https://zhuanlan.zhihu.com/p/93846000">https://zhuanlan.zhihu.com/p/93846000</a></li>
+  <li><a href="https://gameinstitute.qq.com/community/detail/114545">https://gameinstitute.qq.com/community/detail/114545</a></li>
+</ul>
+:ET

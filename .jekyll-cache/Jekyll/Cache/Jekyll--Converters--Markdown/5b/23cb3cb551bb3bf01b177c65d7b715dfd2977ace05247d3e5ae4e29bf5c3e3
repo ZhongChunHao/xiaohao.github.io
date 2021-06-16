@@ -1,0 +1,11 @@
+I"�<p>2020-4-12-unity-shader-shaderlab</p>
+<h1 id="unity-shader-二-shaderlab了解">[Unity Shader] 二 ShaderLab了解</h1>
+<h2 id="1环境">1.环境</h2>
+<p>Unity版本 2017.4.1
+Visual Studio 2017
+DX版本
+编辑时间 2020.5</p>
+<h2 id="2了解">2.了解</h2>
+<p>Unity Shader是Unity对原生shader的一层封装，这样研发或者美术就在改动一个效果的时候，就不必去找复杂的底层shader改动，又或者是我只是改动一点地方，但是当前的效果也想保留，可能得再加另一个shader脚本，这时候如果用底层的shader，就得重复写很多代码，所以到unity的时候，为了方便，很多东西都封装好了，直接新建一个Unity Shader的脚本，然后就可以改动少量的代码就可以运行了（前提是写对了）。对于开发人员来说，使用Unity Shader，改动一行代码就能实现效果，有时候是好事，有时候也是坏事，改动一行代码就能快速完成需求当然好，但是不熟悉底层的话，就会“知其然而不知其所以然”，难以理解其中的关键点，所以分了两部分来写，一个是Unity Shader的，另一个就是底层的Shader，一个注重实现和一部分的底层理解，另一个就注重对底层的调用。
+然后对于使用Unity Shader的话，则需要使用ShaderLab来写，以及根据需要调用的渲染底层接口，来配合使用HLSL语言（DX）还是GLSL（OpenGL），或者是CG语言（Nvidia）.</p>
+:ET
