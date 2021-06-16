@@ -1,9 +1,0 @@
-I"�<h1 id="unity编辑器内实现coroutine的跑法">Unity编辑器内实现Coroutine的跑法</h1>
-
-<ul>
-  <li>目前只是找到的一些小实现方法，主要在Editor下挂起一个委托(delegate)，然后由Application.update去每帧的调用判断是否触发。</li>
-</ul>
-
-<p>Github地址:<br />
-<a href="https://github.com/Charles-Zhong/UnityEditorSimpleCoroutine">https://github.com/Charles-Zhong/UnityEditorSimpleCoroutine</a></p>
-:ET
