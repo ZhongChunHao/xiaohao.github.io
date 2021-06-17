@@ -15,8 +15,8 @@ header-img: img/about-bg.jpg
 email: 2427617200@qq.com
 description: ""
 keyword: "个人网站, 互联网, Web, GameDesign, 前端, 设计, 游戏设计"
-url: "https://zhongchunhao.github.io/zhongxiaohao.github.io/"              # your host, for absolute URL
-baseurl: "/zhongxiaohao.github.io"                             # for example, '/blog' if your blog hosted on 'host/blog'
+url: "https://zhongchunhao.github.io/xiaohao.github.io/"              # your host, for absolute URL
+baseurl: "/xiaohao.github.io"                             # for example, '/blog' if your blog hosted on 'host/blog'
 
 # Publish posts or collection documents with a future date.
 future: true
@@ -91,7 +91,7 @@ netease_comment: false
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "Think Twice, Code Once<br>三思而后码"
-sidebar-avatar: /zhongxiaohao.github.io/img/avatar-zch-my2020.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /xiaohao.github.io/img/avatar-zch-my2020.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
