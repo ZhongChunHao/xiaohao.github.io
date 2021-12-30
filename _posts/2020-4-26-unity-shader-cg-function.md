@@ -7,7 +7,7 @@ modified:     '2020-05-23T02:42:48.959Z'
 author:       "CharlesZhong"
 header-style: text
 catalog:      true
-...published:    false
+published:    false
 tags:
     - Unity Shader
     - Shader
