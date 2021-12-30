@@ -8,7 +8,7 @@ author:       "CharlesZhong"
 header-style: text
 catalog:      true
 ...published:    false
-published:    true
+published:    false
 tags:
     - Unity Shader
     - Shader
