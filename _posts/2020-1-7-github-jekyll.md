@@ -1,6 +1,6 @@
 ---
 layout:       post
-title:        使用GitHub和jekyll打造自己的博客
+title:        使用GitHub和Jekyll打造自己的博客
 subtitle:     " Just Do It"
 created:      '2020-01-07T03:04:08.458Z'
 modified:     '2020-01-07T03:05:01.214Z'
