@@ -14,6 +14,7 @@ tags:
 ---
 > 授人以鱼不如授人以渔
 编写过多的Markdown例子，不如给出工具或者是方法呢，所以这时我们讨论的内容主要在结合少量例子的情况下给一些工具和方法，亦或者是资料等。
+Markdown是目前博客文章所需要的文本格式，比如现在的CSDN和简书，或者自己搭建的Jekyll博客都是采用的这个格式，一般以<kbd>.md</kbd>或者<kbd>.markdown</kbd>为后缀名。
 
 ## 鱼  
 ### 标题
@@ -40,7 +41,9 @@ tags:
 ~~~
 
 ## 渔
-TODO 本来还想写<kbd>Notable</kbd>，现在也只能以后再写了(咕咕咕.jpg)
+>我使用的是<kbd>Notable</kbd>这款编辑器，Notable官网[^1]对比了许多的MarkDown编辑器的优缺点，本身编辑器就包含了<kbd>所见即所得</kbd>的写法，所以写的比较好。
 
 ## 链接
 - [菜鸟教程](https://www.runoob.com/markdown/md-tutorial.html)
+
+[^1]: https://github.com/notable/notable
