@@ -8,6 +8,7 @@ author:     "CharlesZhong"
 ...header-style: text
 header-img: "img/post-bg-unix-linux.jpg"
 catalog: true
+published:    false
 tags:
     - Markdown
 
