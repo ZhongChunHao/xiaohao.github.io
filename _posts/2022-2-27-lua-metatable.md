@@ -58,14 +58,39 @@ setmetatable(t, meta)
 #### __eq
 等于
 ~~~ lua
-
+local mt = {}
+mt.__eq = function(a, b)
+  return a <= b and b <= a
+end
 ~~~
 
 #### __lt
 小于
+~~~ lua
+local mt = {}
+mt.__lt = function(a, b)
+  return a <= b and not (b <= a)
+end
+~~~
 
 #### __le
-小于等于
+小于等于，a<=b的话，a是b的一个子集。
+~~~ lua
+local mt = {}
+mt.__le = function(a, b)
+  for k, v in pairs(a) do
+    if not b[k] then return false end
+  end
+  return true
+end
+
+--使用
+local t1 = {2,4}
+local t2 = {4,10,2}
+setmetatable(t1, mt)
+setmetatable(t2, mt)
+print(t1 <= t2)  --输出true
+~~~
 
 ### 3 库定义的元方法
 #### __tostring
