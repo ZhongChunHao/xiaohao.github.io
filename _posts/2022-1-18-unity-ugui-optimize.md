@@ -17,7 +17,7 @@ tags:
 > 学习到一篇比较好的文章，记录一下。
 
 ### 优化
-![ugui1](img/in-post/ugui/ia_100000002.png)
+![](img/in-post/ugui/ia_100000002.png)
 ![ugui2](img/in-post/ugui/ia_100000003.png)
 ![ugui3](img/in-post/ugui/ia_100000004.png)
 ![ugui4](img/in-post/ugui/ia_100000005.png)
