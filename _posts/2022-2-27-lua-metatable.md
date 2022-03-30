@@ -22,7 +22,7 @@ tags:
 在新创建一个table时，是不会创建元表的。
 
 ## 元表代码
-~~~ Lua
+~~~ lua
 local t = {}
 local meta = {}
 setmetatable(t, meta)
